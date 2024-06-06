@@ -1,3 +1,11 @@
+/hiapp_ligand_binding_20rep_analysis/hiapp_wt_yxa1/replica_temp.xvg
+
+/hiapp_ligand_binding_20rep_analysis/hiapp_wt_yxa1/outdir_lig_prot_analysis/sa_timeseries.json 
+/hiapp_ligand_binding_20rep_analysis/hiapp_wt_yxi1/outdir_yxi1_iapp_analysis_3us/sa_timeseries.json 
+/hiapp_ligand_binding_20rep_analysis/hiapp_s20g_yxa1/outdir_lig_prot_analysis_2.82/sa_timeseries.json 
+/hiapp_ligand_binding_20rep_analysis/hiapp_s20g_yxi1/outdir_lig_prot_analysis/sa_timeseries.json 
+
+
 /hiapp_s20g_apo/hiapp_s20g_apo_300k.xtc
 /hiapp_s20g_apo/pbc_and_demux_trjs/*
 
