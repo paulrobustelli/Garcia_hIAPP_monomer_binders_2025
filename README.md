@@ -47,7 +47,7 @@ If you plan on running on a cluster with a linux system, you should use [minforg
 - `pip install pyblock`
 
 
-OR create a new environment from env.yml file using conda env create -f env.yml
+OR create a new environment from circuit_top_env.yml file using `conda env create -f circuit_top_env.yml`
 
 ## 2. Run Topology Analysis and Cluster data 
 create a topology matrix, run incremental pca, and using the script, which requires a topology file and trajectory file. Notice that some of the functions are borrowed directly from [scalvini et al. 2023]( https://pubs.acs.org/doi/10.1021/acs.jcim.3c00391).
