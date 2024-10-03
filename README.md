@@ -21,22 +21,31 @@ If you plan on running on a cluster with a linux system, you should use [minforg
 
 `mamba create -n circuit_top python`
 
-	-Mdtraj 
-  	`mamba install mdtraj` 
-  	`conda install -c conda-forge mdtraj`
-	-Matplotlib 
-  		-`mamba install matplotlib` 
-  		-`conda install matplotlib`
-	-Seaborn
-  		-`pip3 install seaborn`
-	-Scikit-Learn 
-  		-`pip3 install -U scikit-learn`
-	-Scipy 
-  		-`conda install scipy`
-	-Biopython 
-  		-`pip3 install biopython`
-	-pyblock 
-  		-`pip install pyblock`
+### Package Installation
+
+#### Mdtraj
+- `mamba install mdtraj`
+- `conda install -c conda-forge mdtraj`
+
+#### Matplotlib
+- `mamba install matplotlib`
+- `conda install matplotlib`
+
+#### Seaborn
+- `pip3 install seaborn`
+
+#### Scikit-Learn
+- `pip3 install -U scikit-learn`
+
+#### Scipy
+- `conda install scipy`
+
+#### Biopython
+- `pip3 install biopython`
+
+#### pyblock
+- `pip install pyblock`
+
 
 OR create a new environment from env.yml file using conda env create -f env.yml
 
