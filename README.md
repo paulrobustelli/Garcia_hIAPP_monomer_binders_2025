@@ -54,7 +54,7 @@ create a topology matrix, run incremental pca, and using the script, which requi
 
 There are 5 variables to consider in this order: the trajectory path, the topology path, the number of residues, the out directory, the number of clusters, and the system name for file naming. 
 
-Example usage: `python circuit_top_analysis_script.py ./2F4K.protein.s10.dcd ./2F4K.protein.pdb 34 2F4K_outdir 5 villin_2F4K`
+Example usage: `python circuit_top_analysis_script.py hiapp_wt_apo_300k.xtc hiapp_wt_apo.gro 38 hiapp_wt_apo_outdir 4 hiapp_wt_apo`
 
 ## 3. Analyze the trajectory and Clustering
 For any protein + ligand system run the {protein}_{ligand}_analysis.ipynb notebook. This notebook analyzes the ligand system. You may run circuit_top_{protein}_{ligand}_analysis.ipynb based off k-means clusters created from the topology matrix. 
