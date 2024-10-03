@@ -551,6 +551,7 @@ def compute_circuit_top_model(trj, fname, prot_len=38, cutoff_distance = 10, cut
                 temp[pairs_dict[(x,y)]] = val
         circuit_model[i, :] = temp
         topologies[i,:] = psc[-3:]
+        np.save("./topologies" +".npy", topologies, allow_pickle=False, fix_imports=False)
         del temp 
         del mat 
 

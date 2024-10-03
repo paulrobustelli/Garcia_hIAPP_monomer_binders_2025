@@ -11,7 +11,7 @@ save the log file as it will ccontain the information for the KMEANS silhouette 
 
 
 # import from different python files 
-from circuit_top_tools2_1 import *
+from circuit_top_tools2_2 import *
 from analysis_tools import * 
 
 from sklearn.decomposition import IncrementalPCA
@@ -19,7 +19,7 @@ from scipy import sparse
 
 import os 
 import mdtraj as md 
-import pickle
+import json
 import sys 
 
 # argument order is trajectory, pdb, outdir, c_cluster 
@@ -35,7 +35,7 @@ if not os.path.exists(outdir):
     os.makedirs(outdir)
 
 
-trj = md.load(traj_path, top = top_path, stride = 1) # testing it out for ~ 500 frames 
+trj = md.load(traj_path, top = top_path, stride = 10) # testing it out for ~ 500 frames 
 # get just the protein not the ligand 
 prot = trj.topology.select("residue 1 to " + str(res_num))
 trj = trj.atom_slice(prot)
@@ -54,19 +54,19 @@ cutoff_distance =       10
 cutoff_numcontacts =    1 # any contact counts as a contact
 exclude_neighbour =     1
 
+class NumpyArrayEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
 def main():  
     """ run the analysis """
     # here is the circuit topology analysis 
     fname = outdir + psystem + "_circuit_model.dat"
-    topology_avgs = compute_circuit_top_model(trj,fname, res_num, cutoff_distance, exclude_neighbour)
-    # save the topology averages 
-    np.save(outdir + psystem + "_topologies" +".npy", topology_avgs, allow_pickle=False, fix_imports=False)
-
-    # here is loading in the circuit model 
-    data_type = np.uint8
-    dim_m = int( (res_num * (res_num-1)) // 2 )
-    circuit_model = np.memmap(fname, dtype=data_type, mode='r', shape=(trj.n_frames, dim_m))
-
+    circuit_model = compute_circuit_top_model(trj,fname, res_num, cutoff_distance, exclude_neighbour)
+    # move the topologies file to the right directory 
+    os.rename("./topologies.npy", outdir+ psystem + "topologies.npy")
     transformer = IncrementalPCA(n_components=2, batch_size=200)
     X_sparse = sparse.csr_matrix(circuit_model)
     X_transformed = transformer.fit_transform(X_sparse)
@@ -97,11 +97,12 @@ def main():
     c_dict = {}
     for i in range(n_cluster):
         ind = np.where(kmean_labels==i)[0]
-        c_dict[i] = np.array(ind)
+        c_dict[i] = np.array(ind).tolist()
 
     # save this dictionary, so that the overall stats can be saved, while still being able to index the clusters 
-    with open(outdir+psystem+"_kmeans_cluster_indices.pkl", "wb") as f: 
-        pickle.dump(c_dict, f)
-
+    json_filename = outdir+psystem+"_kmeans_cluster_indices.json"
+    # Save as JSON
+    with open(json_filename, 'w') as json_file:
+        json.dump(c_dict, json_file, indent=4)
 if __name__ == "__main__":
     main()
