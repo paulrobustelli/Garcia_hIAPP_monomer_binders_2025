@@ -22,8 +22,8 @@ If you plan on running on a cluster with a linux system, you should use [minforg
 `mamba create -n circuit_top python`
 
 	-Mdtraj 
-  		-`mamba install mdtraj` 
-  		-`Conda install -c conda-forge mdtraj`
+  	`mamba install mdtraj` 
+  	`conda install -c conda-forge mdtraj`
 	-Matplotlib 
   		-`mamba install matplotlib` 
   		-`conda install matplotlib`
@@ -48,6 +48,6 @@ Example usage: `python circuit_top_analysis_script.py ./2F4K.protein.s10.dcd ./2
 3. For any protein + ligand system run the {protein}_{ligand}_analysis.ipynb notebook. This notebook analyzes the ligand system. You may run circuit_top_{protein}_{ligand}_analysis.ipynb based off k-means clusters created from the topology matrix. 
 
 This notebook requires: 
-  -a structure file that can be read by mdtraj (pdb, gro, etc..) file for your protein + ligand system
-  -an xtc or dcd file for your simulation
-  -a perfectly ideal helix structure for alpha-helical order parameter calculations
+ 	- a structure file that can be read by mdtraj (pdb, gro, etc..) file for your protein + ligand system
+ 	- an xtc or dcd file for your simulation
+ 	- a perfectly ideal helix structure for alpha-helical order parameter calculations
