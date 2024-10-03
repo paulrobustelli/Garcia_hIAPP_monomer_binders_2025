@@ -11,7 +11,7 @@ To learn more about analysis and insights found in this paper please check out o
 
 # Documentation 
 
-1. Download the required packages 
+## 1. Download the required packages 
 
 If you plan on running on a cluster with a linux system, you should use [minforge3](https://github.com/conda-forge/miniforge?tab=readme-ov-file) as it solves for package environments faster. 
 
@@ -49,14 +49,15 @@ If you plan on running on a cluster with a linux system, you should use [minforg
 
 OR create a new environment from env.yml file using conda env create -f env.yml
 
-2. Create a topology matrix, run incremental pca, and using the script, which requires a topology file and trajectory file. Notice that some of the functions are borrowed directly from [scalvini et al. 2023]( https://pubs.acs.org/doi/10.1021/acs.jcim.3c00391): 
+## 2. Create a topology matrix, run incremental pca, and using the script, which requires a topology file and trajectory file. Notice that some of the functions are borrowed directly from [scalvini et al. 2023]( https://pubs.acs.org/doi/10.1021/acs.jcim.3c00391): 
 a.There are 5 variables to consider in this order: the trajectory path, the topology path, the number of residues, the out directory, the number of clusters, and the system name for file naming. 
 
 Example usage: `python circuit_top_analysis_script.py ./2F4K.protein.s10.dcd ./2F4K.protein.pdb 34 2F4K_outdir 5 villin_2F4K`
 
-3. For any protein + ligand system run the {protein}_{ligand}_analysis.ipynb notebook. This notebook analyzes the ligand system. You may run circuit_top_{protein}_{ligand}_analysis.ipynb based off k-means clusters created from the topology matrix. 
+## 3. For any protein + ligand system run the {protein}_{ligand}_analysis.ipynb notebook. This notebook analyzes the ligand system. You may run circuit_top_{protein}_{ligand}_analysis.ipynb based off k-means clusters created from the topology matrix. 
 
 This notebook requires: 
- 	- a structure file that can be read by mdtraj (pdb, gro, etc..) file for your protein + ligand system
- 	- an xtc or dcd file for your simulation
- 	- a perfectly ideal helix structure for alpha-helical order parameter calculations
+- a structure file that can be read by mdtraj (pdb, gro, etc..) file for your protein + ligand system
+- an xtc or dcd file for your simulation
+- a matrix file and circuit model file or a .json/.pkl file with dictionary values for assigned clusters
+- a perfectly ideal helix structure for alpha-helical order parameter calculations
