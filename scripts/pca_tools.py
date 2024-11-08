@@ -11,34 +11,27 @@ import seaborn as sns
 from matplotlib import colors, cm
 
 # computing inputs 
+import math 
 from numpy import log2, zeros, mean, var, sum, loadtxt, arange, \
                   array, cumsum, dot, transpose, diagonal, floor
 import itertools
+import pyblock
 import mdtraj as md
 
 # pca and Kmeans function from a python package sklearn 
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
-# other stuff to compute 
+# other computations 
 from sklearn import metrics
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
-# define the font sizes and weights 
-from matplotlib import rc 
-font = {'family' : 'Arial',
-        'weight' : 'bold',
-        'size'   : 14}
-
-rc('font', **font)
-
-# kmeans 
-####                                        computing                                               ###
+####                        Error Analysis Functions                      ###
 def block(x):
     """
-    This is a piece of code that we often use in the Robustelli lab to calculate the error bars/ stats 
+    block function from pyblock package -  https://github.com/jsspencer/pyblock
     """
     # preliminaries
     d = log2(len(x))
@@ -49,15 +42,15 @@ def block(x):
     d = int(floor(d))
     n = 2**d
     s, gamma = zeros(d), zeros(d)
-    mu = mean(x)
+    mu = np.mean(x)
     # estimate the auto-covariance and variances 
     # for each blocking transformation
     for i in arange(0,d):
         n = len(x)
         # estimate autocovariance of x
-        gamma[i] = (n)**(-1)*sum( (x[0:(n-1)]-mu)*(x[1:n]-mu) )
+        gamma[i] = (n)**(-1)*np.sum( (x[0:(n-1)]-mu)*(x[1:n]-mu) )
         # estimate variance of x
-        s[i] = var(x)
+        s[i] = np.var(x)
         # perform blocking transformation
         x = 0.5*(x[0::2] + x[1::2])
 
@@ -65,7 +58,7 @@ def block(x):
     M = (cumsum( ((gamma/s)**2*2**arange(1,d+1)[::-1])[::-1] )  )[::-1]
 
     # we need a list of magic numbers
-    q =array([6.634897,  9.210340,  11.344867, 13.276704, 15.086272,
+    q =np.array([6.634897,  9.210340,  11.344867, 13.276704, 15.086272,
               16.811894, 18.475307, 20.090235, 21.665994, 23.209251,
               24.724970, 26.216967, 27.688250, 29.141238, 30.577914,
               31.999927, 33.408664, 34.805306, 36.190869, 37.566235,
@@ -78,11 +71,268 @@ def block(x):
             break
     if (k >= d-1):
         print("Warning: Use more data")
-    
-    print(k)
-    print(d)
 
     return (s[k]/2**(d-k))
+
+def free_energy_1D_blockerror(a, T, x0, xmax, bins, blocks):
+    histo, xedges = np.histogram(
+        a, bins=bins, range=[x0, xmax], density=True, weights=None)
+    max = np.max(histo)
+    free_energy = -(0.001987*T)*np.log(histo+.000001)
+    free_energy = free_energy-np.min(free_energy)
+    xcenters = xedges[:-1] + np.diff(xedges)/2
+    Ind = chunkIt(len(a), blocks)
+    block_size = (Ind[0][1]-Ind[0][0])
+    hist_blocks = []
+    for i in range(0, len(Ind)):
+        block_data = a[Ind[i][0]:Ind[i][1]]
+        hist, binedges = np.histogram(block_data, bins=bins, range=[
+                                      x0, xmax], density=True, weights=None)
+        hist_blocks.append(hist)
+    hist_blocks = np.array(hist_blocks)
+    average = np.average(hist_blocks, axis=0)
+    variance = np.var(hist_blocks, axis=0)
+    print(variance)
+    print(average)
+    N = len(hist_blocks)
+    error = np.sqrt(variance / N)
+    ferr = -(0.001987*T)*(error / average)
+    return free_energy, xcenters, ferr
+
+def chunkIt(a, num):
+    avg = a / float(num)
+    out = []
+    last = 0.0
+    while last < a-1:
+        out.append([int(last), int(last+avg)])
+        last += avg
+    return out
+
+def histo_blockerror(a, x0, xmax, bins, blocks):
+    histo, xedges = np.histogram(
+        a, bins=bins, range=[x0, xmax], density=True, weights=None)
+    xcenters = xedges[:-1] + np.diff(xedges)/2
+    Ind = chunkIt(len(a), blocks)
+    block_size = (Ind[0][1]-Ind[0][0])
+    hist_blocks = []
+    for i in range(0, len(Ind)):
+        block_data = a[Ind[i][0]:Ind[i][1]]
+        hist, binedges = np.histogram(block_data, bins=bins, range=[
+                                      x0, xmax], density=True, weights=None)
+        hist_blocks.append(hist)
+    hist_blocks = np.array(hist_blocks)
+    average = np.average(hist_blocks, axis=0)
+    variance = np.var(hist_blocks, axis=0)
+    N = len(hist_blocks)
+    error = np.sqrt(variance / N)
+    return average, xcenters, error
+
+def get_blockerrors(Data, bound_frac):
+    n_data = len(Data[0])
+    block_errors = []
+    ave = []
+    for i in range(0, n_data):
+        data = Data[:, i]
+        average = np.average(data)
+        be = block(data)**.5
+        ave.append(np.average(data))
+        block_errors.append(be)
+    ave_bf = np.asarray(ave)/bound_frac
+    be_bf = np.asarray(block_errors)/bound_frac
+
+    return ave_bf, be_bf
+
+def get_blockerrors_pyblock(Data, bound_frac):
+    n_data = len(Data[0])
+    block_errors = []
+    ave = []
+    for i in range(0, n_data):
+        data = Data[:, i]
+        average = np.average(data)
+        if (average != 0) and (average != 1):
+            reblock_data = pyblock.blocking.reblock(data)
+            opt = int(pyblock.blocking.find_optimal_block(
+                len(data), reblock_data)[0])
+            opt_block = reblock_data[opt]
+            be = opt_block[4]
+        else:
+            be = 0
+        ave.append(average)
+        block_errors.append(be)
+
+    ave_bf = np.asarray(ave)/bound_frac
+    be_bf = np.asarray(block_errors)/bound_frac
+    return ave_bf, be_bf
+
+def get_blockerror(Data):
+    data = Data
+    average = np.average(data)
+    be = block(data)**.5
+    return average, be
+
+def get_blockerror_pyblock(Data):
+    average = np.average(Data)
+    if (average != 0) and (average != 1):
+        reblock_data = pyblock.blocking.reblock(Data)
+        opt = int(pyblock.blocking.find_optimal_block(len(Data), reblock_data)[0])
+        be = reblock_data[opt][4]
+    else:
+        be = 0
+    return average, float(be)
+
+def get_blockerror_pyblock_nanskip(Data):
+    average = np.average(Data)
+    if (average != 0) and (average != 1):
+        reblock_data = pyblock.blocking.reblock(Data)
+        opt = pyblock.blocking.find_optimal_block(len(Data), reblock_data)[0]
+        if(math.isnan(opt)):
+            be_max = 0
+            for i in range(0, len(reblock_data)):
+                be = reblock_data[i][4]
+                if(be > be_max):
+                    be_max = be
+        else:
+            be = reblock_data[opt][4]
+    else:
+        be = 0
+    return average, float(be)
+
+####                        Calculation  Functions                      ###
+def calc_SA(trj, helix, start, stop):
+    r0 = .10
+    RMS_start = start
+    RMS_stop = stop
+    RMS = []
+    for i in range(RMS_start, RMS_stop):
+        sel = helix.topology.select("residue %s to %s and name CA" % (i, i+6))
+        rmsd = md.rmsd(trj, helix, atom_indices=sel)
+        RMS.append(rmsd)
+    
+    RMS = np.asarray(RMS)
+    Sa_sum = np.zeros((trj.n_frames))
+    Sa = (1.0-(RMS/0.10)**8)/(1-(RMS/0.10)**12)
+    return Sa
+
+def calc_Rg(trj):
+    mass = []
+    for at in trj.topology.atoms:
+        mass.append(at.element.mass)
+    mass_CA = len(mass)*[0.0]
+    for i in trj.topology.select("name CA"):
+        mass_CA[i] = 1.0
+    rg_CA = md.compute_rg(trj, masses=np.array(mass_CA))
+    return rg_CA
+
+def free_energy(a, b, T, y0, ymax, x0, xmax):
+    free_energy, xedges, yedges = np.histogram2d(
+        a, b, 30, [[y0, ymax], [x0, xmax]], normed=True, weights=None)
+    free_energy = np.log(np.flipud(free_energy)+.000001)
+    free_energy = -(0.001987*T)*free_energy
+    return free_energy, xedges, yedges
+
+def free_energy_1D(a, T, x0, xmax, bins):
+    free_energy, xedges = np.histogram(
+        a, bins=bins, range=[x0, xmax], density=True, weights=None)
+    max = np.max(free_energy)
+    free_energy = np.log(free_energy+.0000001)
+    free_energy = -(0.001987*T)*(free_energy-np.log(max+.0000001))
+    xcenters = xedges[:-1] + np.diff(xedges)/2
+    return free_energy, xcenters
+
+def alphabeta_rmsd(phi, psi, phi_ref, psi_ref):
+    alphabetarmsd = np.sum(0.5*(1+np.cos(psi-psi_ref)),
+                           axis=1)+np.sum(0.5*(1+np.cos(phi-phi_ref)), axis=1)
+    return alphabetarmsd
+
+def dssp_convert(dssp):
+    dsspH = np.copy(dssp)
+    dsspE = np.copy(dssp)
+    dsspH[dsspH == 'H'] = 1
+    dsspH[dsspH == 'E'] = 0
+    dsspH[dsspH == 'C'] = 0
+    dsspH[dsspH == 'NA'] = 0
+    dsspH = dsspH.astype(int)
+    TotalH = np.sum(dsspH, axis=1)
+    SE_H = np.zeros((len(dssp[0]), 2))
+
+    for i in range(0, len(dssp[0])):
+        data = dsspH[:, i].astype(float)
+        if(np.mean(data) > 0):
+            SE_H[i] = [np.mean(data), (block(data))**.5]
+
+    dsspE[dsspE == 'H'] = 0
+    dsspE[dsspE == 'E'] = 1
+    dsspE[dsspE == 'C'] = 0
+    dsspE[dsspE == 'NA'] = 0
+    dsspE = dsspE.astype(int)
+    TotalE = np.sum(dsspE, axis=1)
+    Eprop = np.sum(dsspE, axis=0).astype(float)/len(dsspE)
+    SE_E = np.zeros((len(dssp[0]), 2))
+
+    for i in range(0, len(dssp[0])):
+        data = dsspE[:, i].astype(float)
+        if(np.mean(data) > 0):
+            SE_E[i] = [np.mean(data), (block(data))**.5]
+    return SE_H, SE_E
+
+
+def calc_phipsi(trj):
+    indices_phi, phis = md.compute_phi(trj)
+    indices_psi, psis = md.compute_psi(trj)
+    phi_label = []
+    for i_phi in range(0, indices_phi.shape[0]):
+        resindex = trj.topology.atom(indices_phi[i_phi][2]).residue.resSeq
+        phi_label.append(resindex)
+    phi_label = np.array(phi_label)
+    psi_label = []
+    for i_psi in range(0, indices_psi.shape[0]):
+        resindex = trj.topology.atom(indices_psi[i_psi][2]).residue.resSeq
+        psi_label.append(resindex)
+    psi_label = np.array(psi_label)
+    phipsi = []
+    for i in range(0, len(phi_label)-1):
+        current_phipsi = np.column_stack((phis[:, i+1], psis[:, i]))
+        phipsi.append(current_phipsi)
+    phipsi_array = np.array(phipsi)
+    return(phipsi_array, psi_label, phi_label)
+
+def Kd_calc(bound, conc):
+    return((1-bound)*conc/bound)
+
+def contact_map_avg(trj, prot_len, cutoff = 1.2):
+    """
+    This is almost the same as the above function but returns less
+    create average contact maps and distance maps for entire trajectory one-hot encoded 
+    :trj: (mdtraj object) trajectory 
+    :prot_len: (int) the number of residues 
+    returns: a signle contact map
+    """     
+    contact_maps = []
+    contact_distances = []
+    
+    for i in range(0,prot_len):
+        contact_map = []
+        contact_distance = []
+
+        for j in range(0,prot_len):
+            if i == j:
+                contacts = 0
+            else:
+                dist = md.compute_contacts(trj, [[i, j]])
+                array = np.asarray(dist[0]).astype(float)
+                distance = np.average(array)
+                contact_distance.append(distance)
+                contact = np.where(array < cutoff, 1, 0)
+                contacts = np.average(contact)
+            contact_map.append(contacts)
+        contact_maps.append(contact_map)
+        contact_distances.append(contact_distance)
+    final_map = np.asarray(contact_maps).astype(float)
+    final_distance = np.asarray(contact_distances).astype(float)
+
+    return final_map, final_distance
+
+####                        Calculations Functions                      ###
 
 def make_contact_distance_map(trj, res_num):
     """
@@ -219,39 +469,6 @@ def dssp_convert_nose(traj):
 
     return Hprop, Eprop
 
-
-def contact_map_avg(trj, prot_len, cutoff = 1.2):
-    """
-    This is almost the same as the above function but returns less
-    create average contact maps and distance maps for entire trajectory one-hot encoded 
-    :trj: (mdtraj object) trajectory 
-    :prot_len: (int) the number of residues 
-    returns: a signle contact map
-    """     
-    contact_maps = []
-    contact_distances = []
-    
-    for i in range(0,prot_len):
-        contact_map = []
-        contact_distance = []
-
-        for j in range(i,prot_len):
-            if i == j:
-                contacts = 0
-            else:
-                dist = md.compute_contacts(trj, [[i, j]])
-                array = np.asarray(dist[0]).astype(float)
-                distance = np.average(array)
-                contact_distance.append(distance)
-                contact = np.where(array < cutoff, 1, 0)
-                contacts = np.average(contact)
-            contact_map.append(contacts)
-        contact_maps.append(contact_map)
-        contact_distances.append(contact_distance)
-    final_map = np.asarray(contact_maps).astype(float)
-    final_distance = np.asarray(contact_distances).astype(float)
-
-    return final_map, final_distance
 
 ####                                        plotting                                               ###
 
