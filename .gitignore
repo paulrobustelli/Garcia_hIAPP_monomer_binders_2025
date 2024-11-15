@@ -14,6 +14,13 @@
 /outdir_s20g_hiapp_yxi1/ctop_model.npy
 /outdir_s20g_hiapp_yxa1/ctop_model.npy
 
+# sa series is too large 
+/hiapp_20rep_analyses/s20g_hiapp_yxa1_20rep_analyses/sa_timeseries.json
+/hiapp_20rep_analyses/s20g_hiapp_yxi1_20rep_analyses/sa_timeseries.json
+/hiapp_20rep_analyses/wt_hiapp_yxa1_20rep_analyses/sa_timeseries.json
+/hiapp_20rep_analyses/wt_hiapp_yxi1_20rep_analyses/sa_timeseries.json
+/hiapp_20rep_analyses/s20g_hiapp_apo_20rep_analyses/sa_timeseries.json
+/hiapp_20rep_analyses/wt_hiapp_apo_20rep_analyses/sa_timeseries.json
 
 /outdir_wt_hiapp_apo/hiapp_wt_apo_300k.xtc
 /outdir_s20g_hiapp_apo/hiapp_s20g_apo_300k.xtc

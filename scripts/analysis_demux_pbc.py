@@ -1,6 +1,3 @@
-# example us of this file for pbc corrected temperature replicas  
-# python ../../scripts/analysis_demux_pbc.py ./pbc/ ../../structure_files/hiapp_s20g_apo.gro outdir_s20g_pbc 0 20 ../../structure_files/helix_s20g.pdb
-
 import mdtraj as md
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,7 +21,6 @@ pdb = sys.argv[2]
 outdir = "./" + sys.argv[3] + "/"
 demux = int(sys.argv[4])
 nreps = int(sys.argv[5])
-helixpdb = sys.argv[6]
 
 trajectory = ""
 if demux == 1: 
@@ -370,7 +366,7 @@ def compute_rg(trj):
 
 def compute_sa(trj): 
     RMS_start = 1
-    RMS_stop = 31
+    RMS_stop = 37
     RMS = []
     for i in range(RMS_start, RMS_stop):
         sel = top_helix.select("residue %s to %s and backbone" % (i, i+6))
@@ -455,7 +451,7 @@ columns = 4
 grid = plt.GridSpec(rows, columns, wspace = .3, hspace = .3)
 
 # load the helix for this part, which will be the nmr determined helices
-# helixpdb = "../../structure_files/helix_wt.pdb" 
+helixpdb = "../../structure_files/helix_s20g.pdb" 
 helix = md.load_pdb(helixpdb)
 top_helix = helix.topology
 

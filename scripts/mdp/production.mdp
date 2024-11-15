@@ -1,0 +1,43 @@
+title		= CMYC 
+;define		= 	; position restrain the protein
+; Run parameters
+integrator	= md		; leap-frog integrator
+nsteps		= -1		; infinite run 
+dt              = 0.002		; time step = 2 fs
+; Output control
+nstxout		= 400000        ; save full coordinates every 800.0 ps
+nstvout		= 0		; never save velocities
+nstfout         = 0             ; never save forces
+nstenergy	= 40000		; save energies every 80.0 ps
+nstlog		= 40000		; update log file every 80.0 ps
+; group definition
+nstxtcout                = 40000       ; save protein coordinates every 80.0ps
+xtc-precision            = 1000       ; precision for output file
+xtc-grps                 = Protein ; write only protein coordinates
+; Bond parameters
+constraint_algorithm    = lincs	        ; holonomic constraints 
+constraints	        = all-bonds	; all bonds (even heavy atom-H bonds) constrained
+periodic_molecules      = no            ; this is not a periodic molecule
+; Neighborsearching
+ns_type		    = grid		; search neighboring grid cells
+nstlist		    = 80		; update neighbor list every 20 fs
+pbc                 = xyz               ; type of pbc
+rlist               = 0.9               ; cutoff for neighbor list
+; electrostatic
+rcoulomb            = 0.9               ; short-range electrostatic cutoff (in nm)
+coulombtype         = pme               ; electrostatic type
+fourierspacing      = 0.16              ; fourier grid spacing
+; vdw
+vdw-type            = Cut-off           ; vdw type
+rvdw                = 0.9               ; short-range van der Waals cutoff (in nm)
+; Temperature coupling is on
+tcoupl		= V-rescale	            ; modified Berendsen thermostat
+tc-grps		= system
+tau_t		= 0.1	            ; time constant, in ps
+ref_t		= 300.00 	           ; reference temperature, one for each group, in K
+; Pressure coupling is off
+pcoupl		= no 		; no pressure coupling in NVT
+; Velocity generation
+gen_vel		= yes		; assign velocities from Maxwell distribution
+gen_temp	= 300.00		; temperature for Maxwell distribution
+gen_seed	= -1		; generate a random seed
