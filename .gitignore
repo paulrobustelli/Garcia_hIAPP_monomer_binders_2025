@@ -13,6 +13,8 @@
 /outdir_s20g_hiapp_apo/ctop_model.npy 
 /outdir_s20g_hiapp_yxi1/ctop_model.npy
 /outdir_s20g_hiapp_yxa1/ctop_model.npy
+/outdir_s20g_hiapp_apo/sa_rg_basin.gro
+
 
 # sa series is too large 
 /hiapp_20rep_analyses/s20g_hiapp_yxa1_20rep_analyses/sa_timeseries.json
