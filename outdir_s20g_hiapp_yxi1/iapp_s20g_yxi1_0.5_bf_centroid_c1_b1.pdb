@@ -1,4 +1,4 @@
-REMARK   1 CREATED WITH MDTraj 1.9.7, 2024-11-07
+REMARK   1 CREATED WITH MDTraj 1.9.7, 2024-11-15
 CRYST1   64.290   64.290   64.290  90.00  90.00  90.00 P 1           1 
 MODEL        0
 ATOM      1  N   LYS A   1      -9.000   2.860   9.630  1.00  0.00           N  
