@@ -6,14 +6,14 @@
 /hiapp_ligand_binding_20rep_analysis/hiapp_s20g_yxi1/outdir_lig_prot_analysis/sa_timeseries.json 
 
 # ignore large files 
-/outdir_wt_hiapp_apo/ctop_model.npy
-/outdir_wt_hiapp_apo/contacts_model.npy
-/outdir_wt_hiapp_yxi1/ctop_model.npy
-/outdir_wt_hiapp_yxa1/ctop_model.npy
-/outdir_s20g_hiapp_apo/ctop_model.npy 
-/outdir_s20g_hiapp_yxi1/ctop_model.npy
-/outdir_s20g_hiapp_yxa1/ctop_model.npy
-/outdir_s20g_hiapp_apo/sa_rg_basin.gro
+/wt_hiapp_apo/outdir_wt_hiapp_apo/ctop_model.npy
+/wt_hiapp_apo/outdir_wt_hiapp_apo/contacts_model.npy
+/wt_hiapp_yxi1/outdir_wt_hiapp_yxi1/ctop_model.npy
+/wt_hiapp_yxa1/outdir_wt_hiapp_yxa1/ctop_model.npy
+/s20g_hiapp_apo/outdir_s20g_hiapp_apo/ctop_model.npy 
+/s20g_hiapp_yxi1/outdir_s20g_hiapp_yxi1/ctop_model.npy
+/s20g_hiapp_yxa1/outdir_s20g_hiapp_yxa1/ctop_model.npy
+/s20g_hiapp_apo/outdir_s20g_hiapp_apo/sa_rg_basin.gro
 
 
 # sa series is too large 
@@ -24,7 +24,7 @@
 /hiapp_20rep_analyses/s20g_hiapp_apo_20rep_analyses/sa_timeseries.json
 /hiapp_20rep_analyses/wt_hiapp_apo_20rep_analyses/sa_timeseries.json
 
-/outdir_wt_hiapp_apo/hiapp_wt_apo_300k.xtc
-/outdir_s20g_hiapp_apo/hiapp_s20g_apo_300k.xtc
+/wt_hiapp_apo/outdir_wt_hiapp_apo/hiapp_wt_apo_300k.xtc
+/s20g_hiapp_apo/outdir_s20g_hiapp_apo/hiapp_s20g_apo_300k.xtc
 /pbc_demux_trjs_s20g_hiapp_apo/
 /pbc_demux_trjs_wt_hiapp_apo/
