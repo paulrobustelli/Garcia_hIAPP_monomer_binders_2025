@@ -1,9 +1,3 @@
-/hiapp_ligand_binding_20rep_analysis/hiapp_wt_yxa1/replica_temp.xvg
-
-/hiapp_ligand_binding_20rep_analysis/hiapp_wt_yxa1/outdir_lig_prot_analysis/sa_timeseries.json 
-/hiapp_ligand_binding_20rep_analysis/hiapp_wt_yxi1/outdir_yxi1_iapp_analysis_3us/sa_timeseries.json 
-/hiapp_ligand_binding_20rep_analysis/hiapp_s20g_yxa1/outdir_lig_prot_analysis_2.82/sa_timeseries.json 
-/hiapp_ligand_binding_20rep_analysis/hiapp_s20g_yxi1/outdir_lig_prot_analysis/sa_timeseries.json 
 
 # ignore large files 
 /wt_hiapp_apo/outdir_wt_hiapp_apo/ctop_model.npy
@@ -28,3 +22,7 @@
 /s20g_hiapp_apo/outdir_s20g_hiapp_apo/hiapp_s20g_apo_300k.xtc
 /pbc_demux_trjs_s20g_hiapp_apo/
 /pbc_demux_trjs_wt_hiapp_apo/
+
+# hide visualization folders with trajectories 
+/s20g_hiapp_yxa1/outdir_s20g_hiapp_yxa1/outdir_vis_basins/
+/wt_hiapp_yxi1/outdir_wt_hiapp_yxi1/outdir_vis_basinis/
