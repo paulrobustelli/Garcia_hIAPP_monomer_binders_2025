@@ -1,3 +1,10 @@
+# ignore donwsampled ctop_models 
+/wt_hiapp_apo/outdir_wt_hiapp_apo/ctop_model.npz
+/s20g_hiapp_apo/outdir_s20g_hiapp_apo/ctop_model.npz
+/s20g_hiapp_yxi1/outdir_s20g_hiapp_yxi1/ctop_model.npz
+/wt_hiapp_yxi1/ctop_model.npz
+/s20g_hiapp_yxa1/outdir_s20g_hiapp_yxa1/ctop_model.npz
+/wt_hiapp_yxa1/outdir_wt_hiapp_yxa1/ctop_model.npz
 
 # ignore large files 
 /wt_hiapp_apo/outdir_wt_hiapp_apo/ctop_model.npy
@@ -25,4 +32,6 @@
 
 # hide visualization folders with trajectories 
 /s20g_hiapp_yxa1/outdir_s20g_hiapp_yxa1/outdir_vis_basins/
-/wt_hiapp_yxi1/outdir_wt_hiapp_yxi1/outdir_vis_basinis/
+/s20g_hiapp_yxi1/outdir_s20g_hiapp_yxi1/outdir_vis_basins/
+/wt_hiapp_yxi1/outdir_wt_hiapp_yxi1/outdir_vis_basins/
+/wt_hiapp_yxa1/outdir_wt_hiapp_yxa1/outdir_vis_basins/
