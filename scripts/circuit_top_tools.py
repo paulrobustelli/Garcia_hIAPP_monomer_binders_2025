@@ -1,3 +1,6 @@
+# renumbered on 07/29/25 
+# s = 1, cs=1, P=3 , P-1 = 4, CP=5, CP-1 = 6, X = 7 
+# renumbered to follow a general complexity in of entanglement. 
 import os
 import numpy as np
 
@@ -51,8 +54,8 @@ def get_matrix(index,protid):
                 #parallel    
                 elif (i>k and j<l):
                     P=P+1
-                    mat[x, y]=2
-                    mat[y, x]=3
+                    mat[x, y]=3
+                    mat[y, x]=4
                 
                 #5: CP
                 #6: CP-1    
@@ -78,22 +81,22 @@ def get_matrix(index,protid):
                 #inverse parallel
                 elif (k>i and l<j):
                     P += 1
-                    mat[x, y]=3
-                    mat[y, x]=2
+                    mat[x, y]=4
+                    mat[y, x]=3
                 #CS
                 elif (j ==k):
-                    mat[x,y]=7
-                    mat[y,x]=7
+                    mat[x,y]=2
+                    mat[y,x]=2
                     S += 1
                 #Cross
                 if (k>i and k<j and j<l):
                     X += 1
-                    mat[x, y]=4
-                    mat[y, x]=4
+                    mat[x, y]=7
+                    mat[y, x]=7
                 elif (i>k and i< l and j> l):
                     X += 1
-                    mat[x, y]=4
-                    mat[y, x]=4
+                    mat[x, y]=7
+                    mat[y, x]=7
         total = sum([P,S,X])
         psc = [protid,P,S,X,round(P/total,3),round(S/total,3),round(X/total,3)]
 

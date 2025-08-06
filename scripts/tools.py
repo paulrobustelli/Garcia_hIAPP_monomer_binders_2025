@@ -33,6 +33,21 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 
+
+###                        General Functions                      ###
+# Count 1s per row
+def count_vals_per_row(csr, val):
+    """
+    Takes a sparse matrix and counts the number of values in that matrix. 
+    """
+    counts = np.zeros(csr.shape[0], dtype=int)
+    for i in range(csr.shape[0]):
+        row_data = csr.data[csr.indptr[i]:csr.indptr[i+1]]
+        counts[i] = np.count_nonzero(row_data == val)
+    return counts/csr.shape[1] # return a fraction 
+
+
+
 ####                        Error Analysis Functions                      ###
 def block(x):
     """
@@ -375,40 +390,72 @@ def contact_map_ligand_(trj,residues, ligand_res_index,cutoff=0.6):
         contact_maps.append(contact_map)
     return np.asarray(contact_maps).astype(float)
 
-def contact_map_avg(trj, prot_len, cutoff = 1.2):
-    """
-    This is almost the same as the above function but returns less
-    create average contact maps and distance maps for entire trajectory one-hot encoded 
-    :trj: (mdtraj object) trajectory 
-    :prot_len: (int) the number of residues 
-    returns: a signle contact map
-    """     
-    contact_maps = []
-    contact_distances = []
+def make_dual_map(trj, prot_len=38, ligand_idx=38, cutoff=0.5):
+    # Precompute all distances between each residue and the ligand
+    pairs = [[i, ligand_idx] for i in range(prot_len)]
+    distances, _ = md.compute_contacts(trj, pairs, scheme='closest-heavy')
     
-    for i in range(0,prot_len):
-        contact_map = []
-        contact_distance = []
+    # Convert to binary contact matrix (frames x residues)
+    contact_matrix = (distances < cutoff).astype(int)
 
-        for j in range(0,prot_len):
-            if i == j:
-                contacts = 0
-            else:
-                dist = md.compute_contacts(trj, [[i, j]])
-                array = np.asarray(dist[0]).astype(float)
-                distance = np.average(array)
-                contact_distance.append(distance)
-                contact = np.where(array < cutoff, 1, 0)
-                contacts = np.average(contact)
-            contact_map.append(contacts)
-        contact_maps.append(contact_map)
-        contact_distances.append(contact_distance)
-    final_map = np.asarray(contact_maps).astype(float)
-    final_distance = np.asarray(contact_distances).astype(float)
+    # Now compute the dual map:
+    # For each residue pair (i, j), we take elementwise AND, then average
+    contact_maps = np.zeros((prot_len, prot_len))
+    for i in range(prot_len):
+        for j in range(prot_len):
+            contact_i = contact_matrix[:, i]
+            contact_j = contact_matrix[:, j]
+            joint_contact = np.logical_and(contact_i, contact_j)
+            contact_maps[i, j] = np.mean(joint_contact)
+    
+    return contact_maps.astype(float)
 
-    return final_map, final_distance
+def contact_map_avg(trj, prot_len, cutoff=1.2):
+    """
+    Create average contact and distance maps for entire trajectory.
+    Diagonal and self-distances are set to 0.
+    
+    :param trj: md.Trajectory object
+    :param prot_len: number of residues
+    :param cutoff: contact distance threshold in nm
+    :return: (contact_map, distance_map) as (prot_len x prot_len) numpy arrays
+    """
+    # Generate unique residue pairs (i < j)
+    pairs = [[i, j] for i in range(prot_len) for j in range(i+1, prot_len)]
+    
+    # Compute distances for all pairs across trajectory
+    distances, _ = md.compute_contacts(trj, pairs)
+    
+    # Initialize output matrices
+    contact_map = np.zeros((prot_len, prot_len), dtype=float)
+    distance_map = np.zeros((prot_len, prot_len), dtype=float)
+    
+    # Fill in values symmetrically
+    for idx, (i, j) in enumerate(pairs):
+        dist_ij = distances[:, idx]
+        contact_ij = (dist_ij < cutoff).astype(int)
+
+        if i==j:
+            # Set diagonal and self-distances to 0
+            contact_ij.fill(0)
+            dist_ij.fill(0.0)
+
+        avg_contact = np.mean(contact_ij)
+        avg_distance = np.mean(dist_ij)
+
+        contact_map[i, j] = contact_map[j, i] = avg_contact
+        distance_map[i, j] = distance_map[j, i] = avg_distance
+
+    return contact_map, distance_map
 
 #### Calculations for Intermolecular Interactions ####
+
+def sigmoid(x, a, b):
+      
+    z = np.exp(-(a*x+b))
+    sig = 1- 1 / (1 + z)
+
+    return sig
 
 # Calculating Aromatic Interactions 
 def find_plane_normal(points):
@@ -765,6 +812,19 @@ def create_pos_contact(trj, cutoff=0.5, ligand_residue_index=38):
     print("this is the population of the bound frames for the given cutoff:", len(pos_contact)/trj.n_frames)
     return pos_contact
 
+
+def create_pos_contact_avg_contact(trj, cutoff=0.5, ligand_residue_index=38, prot_len=38): 
+    """
+    # get the indices of a positive contact given the trajectory 
+    """
+    contact_array = np.empty([1, prot_len])
+    contact = calc_contact(trj, ligand_residue_index)
+    contact_array = np.append(contact_array, contact, axis=0)
+    contact_array = np.delete(contact_array, 0, 0)
+    num_res_contact = np.sum(contact_array, axis=1)
+    pos_contact = np.where(np.mean(contact_array, axis=1) >= cutoff)[0]
+    return pos_contact, num_res_contact
+
 def contact_arr_avg(trj, ligand_residue_index=38, residues=38): 
     """
     # get the indices of a positive contact given the trajectory 
@@ -812,23 +872,35 @@ def add_color_to_string(s, values, vmin=None, vmax=None, cmap_name='viridis',fna
     plt.savefig(fname, dpi=400)
     plt.show()
 
+# def get_centroid(traj_basin): 
+#     """
+#     reference: https://mdtraj.org/1.9.3/examples/centroids.html
+#     Get the centroid 
+#     :traj_basin: (mdtraj object) the trajectory of the basin 
+#     :ind_list: the list of indices that made that traj 
+#     """
+#     atom_indices = [a.index for a in traj_basin.topology.atoms if a.element.symbol != 'H']
+#     distances = np.empty((traj_basin.n_frames, traj_basin.n_frames))
+    
+#     for i in range(traj_basin.n_frames):
+#         distances[i] = md.rmsd(traj_basin, traj_basin, i, atom_indices=atom_indices)
+
+#     beta = 1
+#     index = np.exp(-beta*distances / distances.std()).sum(axis=1).argmax()
+
+#     return int(index)
+
 def get_centroid(traj_basin): 
     """
-    reference: https://mdtraj.org/1.9.3/examples/centroids.html
-    Get the centroid 
+    Get the centroid of a trajectory
     :traj_basin: (mdtraj object) the trajectory of the basin 
-    :ind_list: the list of indices that made that traj 
+    returns: (int) the index of the closest frame to the centroid
     """
-    atom_indices = [a.index for a in traj_basin.topology.atoms if a.element.symbol != 'H']
-    distances = np.empty((traj_basin.n_frames, traj_basin.n_frames))
-    
-    for i in range(traj_basin.n_frames):
-        distances[i] = md.rmsd(traj_basin, traj_basin, i, atom_indices=atom_indices)
+    centroid = np.mean([traj_basin.xyz[i].mean(axis=0) for i in range(traj_basin.n_frames)], axis=0)
+    distances = np.linalg.norm([traj_basin.xyz[i].mean(axis=0) - centroid for i in range(traj_basin.n_frames)], axis=1)
+    closest_frame = np.argmin(distances)
 
-    beta = 1
-    index = np.exp(-beta*distances / distances.std()).sum(axis=1).argmax()
-
-    return int(index)
+    return closest_frame
 
 def make_contact_distance_map(trj, res_num):
     """
@@ -1524,16 +1596,75 @@ def hbond_rw_(trj,top,residues,ligand_residue_index,lig_hbond_donors=[],weights=
     else :
         
         return HB_Total
+
+def compute_contact_matrix(traj, protein_residues, ligand_atom_indices, cutoff=0.6):
+    """
+    Computes a one-hot encoded contact matrix between protein residues and ligand atoms.
+    
+    Parameters:
+        traj (md.Trajectory): MDTraj trajectory object.
+        protein_residues (list of int): List of residue indices for the protein.
+        ligand_atom_indices (list of int): List of atom indices for the ligand.
+        cutoff (float): Distance cutoff in nm for defining contacts.
+    
+    Returns:
+        np.ndarray: A (n_frames, n_residues) contact matrix.
+    """
+    # Extract heavy atoms of the protein residues
+    protein_atom_indices = [atom.index for atom in traj.topology.atoms 
+                            if atom.residue.index in protein_residues and atom.element.symbol != 'H']
+    
+    # Compute pairwise distances between protein heavy atoms and ligand atoms
+    atom_pairs = np.array([(pa, la) for pa in protein_atom_indices for la in ligand_atom_indices])
+    distances = md.compute_distances(traj, atom_pairs)
+    
+    # Reshape the distances into (n_frames, n_residues, n_ligand_atoms)
+    n_frames = traj.n_frames
+    n_residues = len(protein_residues)
+    n_ligand_atoms = len(ligand_atom_indices)
+    
+    contact_matrix = np.zeros((n_frames, n_residues), dtype=int)
+    
+    # Iterate over residues and check if any distance is below the cutoff
+    for i, res_id in enumerate(protein_residues):
+        residue_atom_indices = [atom.index for atom in traj.topology.atoms 
+                                if atom.residue.index == res_id and atom.element.symbol != 'H']
+        
+        # Extract the relevant distances
+        relevant_distances = distances[:, np.isin(atom_pairs[:, 0], residue_atom_indices)]
+        
+        # If any distance is below the cutoff, set contact to 1
+        contact_matrix[:, i] = (relevant_distances < cutoff).any(axis=1).astype(int)
+    
+    return contact_matrix
+
+def get_fraction_chemical_group(trj, protein_residues, ligand_moiety_indices):
+    """
+    Computes the average contact matrix for a specific moiety of the ligand.
+    
+    Parameters:
+        trj (md.Trajectory): MDTraj trajectory object.
+        protein_residues (list of int): List of residue indices for the protein.
+        ligand_moiety_indices (list of int): List of atom indices for the ligand moiety.
+    
+    Returns:
+        np.ndarray: Average contact matrix for the specified moiety.  
+    """
+
+    contact_matrix = compute_contact_matrix(trj, protein_residues, ligand_moiety_indices, cutoff=0.5)
+    group_frac_one_hot = np.where(np.sum(contact_matrix, axis=1) > 0, 1, 0)
+    group_frac, group_frac_be = get_blockerror_pyblock(group_frac_one_hot)
+    return group_frac , group_frac_be   # Convert to percentage
+
 ####                          plotting                              ###
 def make_chimera_lig_contact_file(contact_probability, traj, traj_dir, psystem, c=-1, lig_resid=38): 
     # calculate the ligand centroid, with all its atoms 
     temptrj_lig = traj.atom_slice(traj.top.select("resid "+str(lig_resid)))
-    lig_centroid = temptrj_lig.slice(get_centroid(temptrj_lig))
-    lig_centroid.save_gro(traj_dir + "/ct_"+ psystem +"_5Acutoff_centroid_C"+str(c+1) + "_" +".gro")
+    temptrj_lig_frame0 = temptrj_lig[0]
 
     # get atom labels 
-    labels = np.array([str(atom).split("-")[1] for atom in lig_centroid.top.atoms])
-    file_path = outdir + psystem +".zip.lig.5Acutoff.contacts.all."+"c"+str(c+1)+ ".txt"
+    labels = np.array([str(atom).split("-")[1] for atom in temptrj_lig_frame0.top.atoms])
+    file_path = traj_dir + psystem +".zip.lig.5Acutoff.contacts.all."+"c"+str(c+1)+ ".txt"
 
     # automated file writing for each atom 
     with open(file_path, "w") as file:
@@ -1543,7 +1674,12 @@ def make_chimera_lig_contact_file(contact_probability, traj, traj_dir, psystem, 
 
         for n in range(len(labels)):
             # add residue index
-            file.write("\t"+":"+str(lig_resid+1)+"@" + str(labels[n]) + "\t" + str(np.round(contact_probability[n],3)) + "\n")
+            file.write("\t"+":39@" + str(labels[n]) + "\t" + str(np.round(contact_probability[n],3)) + "\n")
+    
+    closest_frame = get_centroid(temptrj_lig)
+    lig_centroid = temptrj_lig.slice([closest_frame])
+
+    lig_centroid.save_gro(traj_dir + "/ct_"+ psystem +"_5Acutoff_centroid_C"+str(c+1) + "_" +".gro")
     return
 
 def ligand_contact_probability(traj, lig_resid = 38, prot_start = 0, prot_end = 37): 
