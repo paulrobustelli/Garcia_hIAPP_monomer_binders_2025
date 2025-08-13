@@ -340,7 +340,7 @@ def create_contact_maps(restobj:RESTOBJ):
         for trj_type in restobj.trj_types:    
             l_contact_map[trj_type]=[]
             for val in restobj.rep_list:
-                l_contact_map[trj_type].append(contact_map_ligand_(trj_dict[trj_type][int(trj_frames[str(val)][0]):int(trj_frames[str(val)][1])],
+                l_contact_map[trj_type].append(make_dual_map(trj_dict[trj_type][int(trj_frames[str(val)][0]):int(trj_frames[str(val)][1])],
                                                                    restobj.residues, restobj.ligand_residue_index))
         restobj.save_json_('l_contact_map.json', l_contact_map)
         return 
@@ -447,47 +447,47 @@ def main():
                    "helix" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/helix_s20g.pdb", 
                    "pdb" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/hiapp_s20g_apo.gro", 
                    "out_dir" : "s20g_hiapp_apo_20rep_analyses",
-                   "traj_dir_pbc" : "/Users/f006j60/Robustelli_Group/IAPP/s20g/pbc_trj_3.8us/", 
-                   "traj_dir_demux" : "/Users/f006j60/Robustelli_Group/IAPP/s20g/demux_trj_3.8us/"}
+                   "traj_dir_pbc" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/s20g_hiapp_apo/pbc_trjs/", 
+                   "traj_dir_demux" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/s20g_hiapp_apo/demux_trjs/"}
     
     s20g_hiapp_yxa1 = {"ligand_rings" : [[560,561,562,563,564,565], [544,545,546,547,548,549], [553,554,555,556,557,558]], 
                    "lig_hbond_donors" : [[541,577],[552,583]],
                    "out_dir" : "s20g_hiapp_yxa1_20rep_analyses",
                    "helix" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/helix_s20g.pdb", 
                    "pdb" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/hiapp_s20g_yxa1.gro", 
-                   "traj_dir_pbc" : "/Users/f006j60/Robustelli_Group/IAPP/s20g_yxa1/pbc_trj_2.82us/", 
-                   "traj_dir_demux" : "/Users/f006j60/Robustelli_Group/IAPP/s20g_yxa1/demux_trj_2.82us/"}
+                   "traj_dir_pbc" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/s20g_hiapp_yxa1/pbc_trjs/", 
+                   "traj_dir_demux" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/s20g_hiapp_yxa1/demux_trjs/"}
 
     s20g_hiapp_yxi1={"ligand_rings" : [[533,534,535,536,537,538,539,540,541], [546,547,548,549,550,551]], 
                    "lig_hbond_donors" : [[545,571],[561,590]],
                    "out_dir" : "s20g_hiapp_yxi1_20rep_analyses",
                    "helix" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/helix_s20g.pdb", 
                    "pdb" : "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/hiapp_s20g_yxi1.gro", 
-                   "traj_dir_pbc" : "/Users/f006j60/Robustelli_Group/IAPP/s20g_714f9/2.8us/pbc_trj/", 
-                   "traj_dir_demux" : '/Users/f006j60/Robustelli_Group/IAPP/s20g_714f9/2.8us/demux_trj/'}
+                   "traj_dir_pbc" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/s20g_hiapp_yxi1/pbc_trjs/", 
+                   "traj_dir_demux" : '/Users/f006j60/git/hIAPP_monomer_simulations/trjs/s20g_hiapp_yxi1/demux_trjs/'}
 
     wt_hiapp_apo={"ligand": False,
                    "helix" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/helix_wt.pdb", 
                    "pdb" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/hiapp_wt_apo.gro",
                    "out_dir" : "wt_hiapp_apo_20rep_analyses",
-                   "traj_dir_pbc" : "/Users/f006j60/Robustelli_Group/IAPP/wt/pbc_trj_4us/", 
-                   "traj_dir_demux" : "/Users/f006j60/Robustelli_Group/IAPP/wt/demux_trj_4us/"}
+                   "traj_dir_pbc" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/wt_hiapp_apo/pbc_trjs/", 
+                   "traj_dir_demux" : "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/wt_hiapp_apo/demux_trjs/"}
     
     wt_hiapp_yxi1={"ligand_rings" : [[537,538,539,540,541,542,543,544,545], [550,551,552,553,554,555]], 
                    "lig_hbond_donors" : [[549,575], [565,594]],
                    "out_dir" : "wt_hiapp_yxi1_20rep_analyses",
                    "helix" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/helix_wt.pdb", 
                    "pdb" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/hiapp_wt_yxi1.gro", 
-                   "traj_dir_pbc" : "/Users/f006j60/Robustelli_Group/IAPP/wt_714f9/pbc_trj/", 
-                   "traj_dir_demux" : "/Users/f006j60/Robustelli_Group/IAPP/wt_714f9/demux_trj/"}
+                   "traj_dir_pbc" :  "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/wt_hiapp_yxi1/pbc_trjs/", 
+                   "traj_dir_demux" : '/Users/f006j60/git/hIAPP_monomer_simulations/trjs/wt_hiapp_yxi1/demux_trjs/'}
 
     wt_hiapp_yxa1={"ligand_rings" : [[564,565,566,567,568,569], [548,549,550,551,552,553], [557,558,559,560,561,562]], 
                    "lig_hbond_donors" : [[545,581],[556,587]],
                    "out_dir" : "wt_hiapp_yxa1_20rep_analyses",
                    "helix" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/helix_wt.pdb", 
                    "pdb" :  "/Users/f006j60/git/hIAPP_monomer_simulations/structure_files/hiapp_wt_yxa1.gro", 
-                   "traj_dir_pbc" : "/Users/f006j60/Robustelli_Group/IAPP/wt_yxa1/pbc_trj_2.69us/", 
-                   "traj_dir_demux" : "/Users/f006j60/Robustelli_Group/IAPP/wt_yxa1/demux_trj_2.69us/"}
+                   "traj_dir_pbc" :  "/Users/f006j60/git/hIAPP_monomer_simulations/trjs/wt_hiapp_yxa1/pbc_trjs/", 
+                   "traj_dir_demux" : '/Users/f006j60/git/hIAPP_monomer_simulations/trjs/wt_hiapp_yxa1/demux_trjs/'}
     
 
     system_params_list = [s20g_hiapp_apo, s20g_hiapp_yxi1, s20g_hiapp_yxa1, wt_hiapp_apo, wt_hiapp_yxi1, wt_hiapp_yxa1]
