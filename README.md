@@ -1,10 +1,6 @@
 # human Islet Amyloid Polypeptide Monomer in Simulation with An Accelerator and Inhibitor  
 hIAPP WT and S20G with YX-I-1 and YX-A-1
-
-Trajectories for this manuscript can be downloaded here:
-https://www.dropbox.com/scl/fo/30s05ez04bliovibhufl0/AH3vOrRkNmu3ycOZsXIwPWo?rlkey=mibfhyc8cif7i5an7uwdvohom&st=a35aeyeg&dl=0
-
-Trajectories, Gromacs Input Files, and All analysis code can be Downloaded here:
+Trajectories, Gromacs Input Files, and al analysis code can be found on this project github. The trajectories used in analysis are all found in the trjs folder, and the input files to start a simulation are found in each respective folder. 
 
 # Publication 
 To learn more about analysis and insights found in this paper please check out our paper/preprint:
@@ -50,11 +46,13 @@ If you plan on running on a cluster with a linux system, you should use [minforg
 OR create a new environment from circuit_top_env.yml file using `conda env create -f circuit_top_env.yml`
 
 ## 2. Run Topology Analysis and Cluster data 
-create a topology matrix, run incremental pca, and using the script, which requires a topology file and trajectory file. Notice that some of the functions are borrowed directly from [scalvini et al. 2023]( https://pubs.acs.org/doi/10.1021/acs.jcim.3c00391).
+create a topology matrix, run incremental pca, and using the script, which requires a topology file and trajectory file. Notice that some of the functions are borrowed directly from [scalvini et al. 2023]( https://pubs.acs.org/doi/10.1021/acs.jcim.3c00391), [project github](https://github.com/circuittopology/dynamic_circuit_topology). 
 
 There are 5 variables to consider in this order: the trajectory path, the topology path, the number of residues, the out directory, the number of clusters, and the system name for file naming. 
 
-Example usage: `python circuit_top_analysis_script.py hiapp_wt_apo_300k.xtc hiapp_wt_apo.gro 38 hiapp_wt_apo_outdir 4 hiapp_wt_apo`
+Example usage: `python circuit_top_analysis_script.py hiapp_wt_apo.xtc hiapp_wt_apo.gro 38 hiapp_wt_apo_outdir 4 hiapp_wt_apo`
+
+The compressed circuit topology matrices can be found at the following [dropbox](https://tinyurl.com/hIAPP-topology-matrices "dropbox")
 
 ## 3. Analyze the Trajectory and Clusters
 For any protein + ligand system run the {protein}_{ligand}_analysis.ipynb notebook. This notebook analyzes the ligand system. You may run circuit_top_{protein}_{ligand}_analysis.ipynb based off k-means clusters created from the topology matrix. 
