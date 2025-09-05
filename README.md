@@ -52,7 +52,7 @@ There are 5 variables to consider in this order: the trajectory path, the topolo
 
 Example usage: `python circuit_top_analysis_script.py hiapp_wt_apo.xtc hiapp_wt_apo.gro 38 hiapp_wt_apo_outdir 4 hiapp_wt_apo`
 
-The compressed circuit topology matrices can be found at the following [dropbox](https://tinyurl.com/hIAPP-topology-matrices "dropbox")
+The compressed circuit topology matrices can be found at the following [dropbox link](https://tinyurl.com/hIAPP-topology-matrices "dropbox link").
 
 ## 3. Analyze the Trajectory and Clusters
 For any protein + ligand system run the {protein}_{ligand}_analysis.ipynb notebook. This notebook analyzes the ligand system. You may run circuit_top_{protein}_{ligand}_analysis.ipynb based off k-means clusters created from the topology matrix. 
