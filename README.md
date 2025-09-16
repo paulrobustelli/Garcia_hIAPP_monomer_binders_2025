@@ -1,9 +1,14 @@
-# human Islet Amyloid Polypeptide Monomer in Simulation with An Accelerator and Inhibitor  
-hIAPP WT and S20G with YX-I-1 and YX-A-1
-Trajectories, Gromacs Input Files, and al analysis code can be found on this project github. The trajectories used in analysis are all found in the trjs folder, and the input files to start a simulation are found in each respective folder. 
+Code accomapnying the manuscript "Monomer binding modes of small molecules that modulate the kinetics of hIAPP amyloud formation" by Michelle Garcia, Korey M. Redi and Paul RObustelli
+
+
+Trajectories, Gromacs Input Files, and al analysis code for this manuscript can be found on this project github. 
+
+The trajectories used in analysis are all found in the trjs folder, and the input files to start a simulation are found in each respective folder. 
 
 # Publication 
 To learn more about analysis and insights found in this paper please check out our paper/preprint:
+
+Biorxiv DOI pending.
 
 # Documentation 
 
