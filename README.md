@@ -8,7 +8,7 @@ The trajectories used in analysis are all found in the trjs folder, and the inpu
 # Publication 
 To learn more about analysis and insights found in this paper please check out our paper/preprint:
 
-Biorxiv DOI pending.
+https://www.biorxiv.org/content/10.1101/2025.09.22.677832v1
 
 # Documentation 
 
